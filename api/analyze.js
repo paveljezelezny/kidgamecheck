@@ -7,7 +7,7 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { url, gameName, age, imageBase64 } = req.body;
+  const { url, gameName, age, imageBase64, imageMimeType } = req.body;
 
   if (!url && !gameName && !imageBase64) {
     return res.status(400).json({ error: 'Chybí vstupní data.' });
@@ -16,9 +16,12 @@ export default async function handler(req, res) {
   const content = [];
 
   if (imageBase64) {
+    const mimeType = imageMimeType && ['image/jpeg','image/jpg','image/png','image/webp'].includes(imageMimeType)
+      ? imageMimeType
+      : 'image/jpeg';
     content.push({
       type: 'image',
-      source: { type: 'base64', media_type: 'image/jpeg', data: imageBase64 }
+      source: { type: 'base64', media_type: mimeType, data: imageBase64 }
     });
   }
 
@@ -62,13 +65,22 @@ export default async function handler(req, res) {
 }
 
 function buildPrompt(url, gameName, age) {
+  // Detect store type for better context
+  let storeInfo = '';
+  if (url) {
+    if (url.includes('play.google.com')) storeInfo = `Google Play URL: ${url}`;
+    else if (url.includes('apps.apple.com') || url.includes('itunes.apple.com')) storeInfo = `Apple App Store URL: ${url}`;
+    else storeInfo = `URL hry: ${url}`;
+  }
+
   return `Jsi odborník na dětskou bezpečnost a hodnocení vhodnosti her. Analyzuj hru pro dítě ve věku ${age} let.
 
 ${gameName ? `Název hry: ${gameName}` : ''}
-${url ? `Google Play URL: ${url}` : ''}
-${!gameName && !url ? 'Hru urči z přiloženého screenshotu.' : ''}
+${storeInfo}
+${!gameName && !url ? 'Hru urči z přiloženého screenshotu nebo obrázku.' : ''}
 
-Na základě svých znalostí o hře proveď analýzu.
+Pokud máš přiložený obrázek (screenshot, ikona, nebo fotka telefonu), použij ho jako zdroj informací k identifikaci hry.
+Na základě svých znalostí o hře proveď důkladnou analýzu vhodnosti pro dítě věku ${age} let.
 
 Vrať POUZE JSON v tomto přesném formátu:
 

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KidCheck – Bezpečné hry pro děti</title>
+<title>Kid Game Checker – AInalyzátor vhodnosti her pro děti</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -434,28 +434,29 @@
   <header>
     <div class="logo">
       <div class="logo-icon">🛡️</div>
-      <h1>KidCheck</h1>
+      <h1>Kid Game Checker</h1>
     </div>
-    <p class="tagline">Analyzátor vhodnosti her pro děti – poháněný AI</p>
+    <p class="tagline">AInalyzátor vhodnosti her pro děti – <a href="https://pracovna.cz" target="_blank" style="color:var(--accent);text-decoration:none;">Pavel Železný | Pracovna.cz</a></p>
   </header>
 
   <div class="form-card">
     <div class="section-label">Zadej hru k analýze</div>
 
     <div class="input-group">
-      <label>Odkaz na Google Play</label>
-      <input type="text" id="urlInput" placeholder="https://play.google.com/store/apps/details?id=..." />
+      <label>Odkaz na Google Play nebo Apple App Store</label>
+      <input type="text" id="urlInput" placeholder="https://play.google.com/... nebo https://apps.apple.com/..." />
     </div>
 
     <div class="or-divider">nebo</div>
 
     <div class="input-group">
-      <label>Screenshot hry / ikona s názvem</label>
+      <label>Screenshot hry, ikona nebo obrázek s názvem (JPG, PNG)</label>
       <div class="upload-area" id="uploadArea">
-        <input type="file" id="fileInput" accept="image/*" />
+        <input type="file" id="fileInput" accept="image/jpeg,image/jpg,image/png,image/webp" />
         <div class="upload-icon">📸</div>
         <div class="upload-text">
-          <strong>Klikni pro výběr</strong> nebo přetáhni obrázek sem
+          <strong>Klikni pro výběr</strong> nebo přetáhni obrázek sem<br>
+          <span style="font-size:0.75rem;color:var(--text-dim)">JPG, JPEG, PNG · screenshot z telefonu nebo webu</span>
         </div>
         <img id="previewImg" class="preview-img" style="display:none" />
       </div>
@@ -507,7 +508,8 @@
   </div>
 
   <footer>
-    KidCheck · Poháněno Claude AI · Hodnocení AI není náhradou rodičovského úsudku
+    Kid Game Checker · Poháněno Claude AI · Hodnocení AI není náhradou rodičovského úsudku<br>
+    <a href="https://pracovna.cz" target="_blank" style="color:var(--text-dim);text-decoration:none;">Pavel Železný | Pracovna.cz</a>
   </footer>
 </div>
 
@@ -520,6 +522,7 @@ const uploadArea = document.getElementById('uploadArea');
 const fileInput = document.getElementById('fileInput');
 const previewImg = document.getElementById('previewImg');
 let uploadedImageBase64 = null;
+let uploadedImageMimeType = 'image/jpeg';
 
 uploadArea.addEventListener('click', () => fileInput.click());
 uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('dragover'); });
@@ -532,6 +535,7 @@ uploadArea.addEventListener('drop', e => {
 fileInput.addEventListener('change', () => { if (fileInput.files[0]) loadFile(fileInput.files[0]); });
 
 function loadFile(file) {
+  uploadedImageMimeType = file.type || 'image/jpeg';
   const reader = new FileReader();
   reader.onload = e => {
     uploadedImageBase64 = e.target.result.split(',')[1];
@@ -564,7 +568,10 @@ async function analyze() {
 
   try {
     const body = { url, gameName, age };
-    if (uploadedImageBase64) body.imageBase64 = uploadedImageBase64;
+    if (uploadedImageBase64) {
+      body.imageBase64 = uploadedImageBase64;
+      body.imageMimeType = uploadedImageMimeType;
+    }
 
     const response = await fetch('/api/analyze', {
       method: 'POST',
