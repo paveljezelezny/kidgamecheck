@@ -413,6 +413,168 @@
 
   .tooltip-popup.visible { opacity: 1; }
 
+  /* Recommendations */
+  .rec-games-section {
+    margin-top: 24px;
+    animation: fadeUp 0.5s 0.2s ease both;
+  }
+
+  .rec-games-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+    padding-left: 2px;
+  }
+
+  .rec-games-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+
+  @media (max-width: 580px) {
+    .rec-games-grid { grid-template-columns: 1fr; }
+  }
+
+  .rec-game-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    text-decoration: none;
+    display: block;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .rec-game-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(74,222,128,0.08);
+  }
+
+  .rec-game-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+
+  .rec-game-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    object-fit: cover;
+    background: var(--border);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    overflow: hidden;
+  }
+
+  .rec-game-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 12px;
+  }
+
+  .rec-game-info { flex: 1; min-width: 0; }
+
+  .rec-game-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .rec-game-dev {
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .rec-game-desc {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+    margin-bottom: 10px;
+  }
+
+  .rec-game-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .rec-game-stars {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.75rem;
+    color: #fbbf24;
+  }
+
+  .rec-game-stars span {
+    color: var(--text-muted);
+    font-size: 0.72rem;
+  }
+
+  .rec-game-downloads {
+    font-size: 0.72rem;
+    color: var(--text-dim);
+  }
+
+  .rec-game-score {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: var(--accent-dim);
+    color: var(--accent);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 3px 7px;
+    border-radius: 99px;
+  }
+
+  .rec-game-stores {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+  }
+
+  .store-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: border-color 0.15s;
+  }
+
+  .store-badge:hover { border-color: var(--accent); color: var(--accent); }
+
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(16px); }
     to { opacity: 1; transform: translateY(0); }
@@ -505,6 +667,12 @@
       <div class="reasons-title">Závěr a doporučení</div>
       <div class="rec-text" id="resRec"></div>
     </div>
+  </div>
+
+  <!-- Recommended games -->
+  <div class="rec-games-section" id="recGamesSection" style="display:none">
+    <div class="rec-games-title">✅ Podobné hry vhodné pro děti (skóre 80+)</div>
+    <div class="rec-games-grid" id="recGamesGrid"></div>
   </div>
 
   <footer>
@@ -671,6 +839,71 @@ function showResult(data, age) {
   });
 
   document.getElementById('resRec').textContent = data.doporuceni || '';
+
+  // Recommended games
+  const recSection = document.getElementById('recGamesSection');
+  const recGrid = document.getElementById('recGamesGrid');
+  recGrid.innerHTML = '';
+
+  if (data.doporucene && data.doporucene.length > 0) {
+    recSection.style.display = 'block';
+
+    data.doporucene.forEach(game => {
+      // Build Google Play icon URL from package_id
+      const iconUrl = game.package_id
+        ? `https://play-lh.googleusercontent.com/search?q=${encodeURIComponent(game.nazev)}`
+        : null;
+
+      // Stars rendering
+      const stars = game.hodnoceni_hvezdy || 0;
+      const fullStars = Math.floor(stars);
+      const halfStar = stars - fullStars >= 0.5;
+      let starsHtml = '';
+      for (let i = 0; i < 5; i++) {
+        if (i < fullStars) starsHtml += '★';
+        else if (i === fullStars && halfStar) starsHtml += '½';
+        else starsHtml += '☆';
+      }
+
+      // Store badges
+      let storesHtml = '';
+      if (game.google_play_url) {
+        storesHtml += `<a class="store-badge" href="${game.google_play_url}" target="_blank" rel="noopener">▶ Google Play</a>`;
+      }
+      if (game.apple_store_url) {
+        storesHtml += `<a class="store-badge" href="${game.apple_store_url}" target="_blank" rel="noopener"> Apple Store</a>`;
+      }
+
+      // Icon - use scraped icon_url from backend, fallback to emoji
+      const iconHtml = game.icon_url
+        ? `<img src="${game.icon_url}" 
+             onerror="this.style.display='none';this.parentElement.innerHTML='🎮'" 
+             alt="${game.nazev}" style="width:48px;height:48px;border-radius:12px;object-fit:cover;" />`
+        : '🎮';
+
+      const card = document.createElement('div');
+      card.className = 'rec-game-card';
+      card.innerHTML = `
+        <div class="rec-game-score">${game.skore_vhodnosti}/100</div>
+        <div class="rec-game-header">
+          <div class="rec-game-icon">${iconHtml}</div>
+          <div class="rec-game-info">
+            <div class="rec-game-name">${game.nazev}</div>
+            <div class="rec-game-dev">${game.vyvojar || ''}</div>
+          </div>
+        </div>
+        <div class="rec-game-desc">${game.popis || ''}</div>
+        <div class="rec-game-meta">
+          <div class="rec-game-stars">${starsHtml} <span>${stars.toFixed(1)}</span></div>
+          <div class="rec-game-downloads">⬇ ${game.pocet_stazeni || '?'}</div>
+        </div>
+        <div class="rec-game-stores">${storesHtml}</div>
+      `;
+      recGrid.appendChild(card);
+    });
+  } else {
+    recSection.style.display = 'none';
+  }
 
   document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
