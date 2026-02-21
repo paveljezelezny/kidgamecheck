@@ -134,13 +134,13 @@ Vrať POUZE JSON v tomto přesném formátu (nic jiného):
 
 PRAVIDLA pro pole "doporucene" - velmi důležité:
 - Uveď přesně 3 skutečné existující hry podobného žánru jako analyzovaná
-- Každá musí mít skore_vhodnosti minimálně 80 bodů
+- Každá musí mít skore_vhodnosti minimálně 70 bodů
 - Všechny musí být vhodné pro věk ${age} let
 - package_id MUSÍ být skutečné Android package ID (např. "com.kiloo.subwaysurf" pro Subway Surfers)
-- google_play_url sestav z package_id: https://play.google.com/store/apps/details?id=<package_id>
+- google_play_url VŽDY sestav jako vyhledávání: https://play.google.com/store/search?q=<nazev_hry_url_encoded>&c=apps
+- apple_store_url VŽDY sestav jako vyhledávání: https://apps.apple.com/cz/search?term=<nazev_hry_url_encoded>
 - hodnoceni_hvezdy = reálné hodnocení na Google Play zaokrouhlené na 1 desetinné místo
 - pocet_stazeni = reálný údaj z Google Play (např. "100M+", "50M+", "10M+", "1M+")
-- apple_store_url vyplň pouze pokud hra skutečně existuje na iOS se správným ID, jinak null
 
 Skóre kritérií: 1=bez problémů, 2=mírné, 3=střední, 4=výrazné, 5=závažné
 Skóre vhodnosti: 0-100 (100=ideální pro dítě, 0=zcela nevhodná)

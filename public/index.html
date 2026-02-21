@@ -865,14 +865,15 @@ function showResult(data, age) {
         else starsHtml += '☆';
       }
 
-      // Store badges
-      let storesHtml = '';
-      if (game.google_play_url) {
-        storesHtml += `<a class="store-badge" href="${game.google_play_url}" target="_blank" rel="noopener">▶ Google Play</a>`;
-      }
-      if (game.apple_store_url) {
-        storesHtml += `<a class="store-badge" href="${game.apple_store_url}" target="_blank" rel="noopener"> Apple Store</a>`;
-      }
+      // Store links - always use search to guarantee working links
+      const gameQuery = encodeURIComponent(game.nazev);
+      const gpUrl = `https://play.google.com/store/search?q=${gameQuery}&c=apps`;
+      const asUrl = `https://apps.apple.com/cz/search?term=${gameQuery}`;
+
+      const storesHtml = `
+        <a class="store-badge" href="${gpUrl}" target="_blank" rel="noopener">▶ Google Play</a>
+        <a class="store-badge" href="${asUrl}" target="_blank" rel="noopener"> App Store</a>
+      `;
 
       // Icon - use scraped icon_url from backend, fallback to emoji
       const iconHtml = game.icon_url
