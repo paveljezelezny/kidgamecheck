@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KidCheck – Bezpečné hry pro děti</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --border: #2a3140;
+    --accent: #4ade80;
+    --accent-dim: #1a3d2b;
+    --warn: #fb923c;
+    --warn-dim: #3d2010;
+    --danger: #f87171;
+    --danger-dim: #3d1010;
+    --text: #e6edf3;
+    --text-muted: #768390;
+    --text-dim: #3d4f63;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 60px 60px;
+    opacity: 0.3;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 60px 24px 80px;
+  }
+
+  header {
+    margin-bottom: 56px;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 8px;
+  }
+
+  .logo-icon {
+    width: 44px;
+    height: 44px;
+    background: var(--accent);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  .tagline {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin-top: 4px;
+    padding-left: 58px;
+  }
+
+  .form-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px 24px;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+
+  .section-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+  }
+
+  .input-group { margin-bottom: 20px; }
+
+  label {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  input[type="text"],
+  input[type="number"] {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 300;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  input:focus { border-color: var(--accent); }
+  input::placeholder { color: var(--text-dim); }
+
+  .row {
+    display: grid;
+    grid-template-columns: 1fr 120px;
+    gap: 12px;
+  }
+
+  .upload-area {
+    border: 1px dashed var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--bg);
+  }
+
+  .upload-area:hover, .upload-area.dragover {
+    border-color: var(--accent);
+    background: var(--accent-dim);
+  }
+
+  .upload-area input { display: none; }
+  .upload-icon { font-size: 28px; margin-bottom: 8px; }
+
+  .upload-text { font-size: 0.85rem; color: var(--text-muted); }
+  .upload-text strong { color: var(--accent); font-weight: 500; }
+
+  .preview-img {
+    max-width: 100%;
+    max-height: 180px;
+    border-radius: 8px;
+    margin-top: 12px;
+    object-fit: contain;
+  }
+
+  .or-divider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 20px 0;
+    color: var(--text-dim);
+    font-size: 0.8rem;
+  }
+
+  .or-divider::before, .or-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .btn-analyze {
+    width: 100%;
+    padding: 14px;
+    background: var(--accent);
+    color: #0a1f13;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 8px;
+  }
+
+  .btn-analyze:hover:not(:disabled) {
+    background: #86efac;
+    transform: translateY(-1px);
+  }
+
+  .btn-analyze:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .loading {
+    display: none;
+    text-align: center;
+    padding: 48px 24px;
+  }
+
+  .loading.active { display: block; }
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 16px;
+  }
+
+  .loading-text { color: var(--text-muted); font-size: 0.9rem; }
+
+  .result {
+    display: none;
+    animation: fadeUp 0.5s ease both;
+    margin-top: 24px;
+  }
+
+  .result.active { display: block; }
+
+  .result-header {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px 16px 0 0;
+    padding: 28px 28px 24px;
+    border-bottom: none;
+  }
+
+  .game-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 800;
+    margin-bottom: 16px;
+  }
+
+  .verdict {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .verdict.safe { background: var(--accent-dim); color: var(--accent); }
+  .verdict.partial { background: var(--warn-dim); color: var(--warn); }
+  .verdict.unsafe { background: var(--danger-dim); color: var(--danger); }
+
+  .score-bar-wrap { margin-top: 20px; }
+
+  .score-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  .score-num {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--text);
+  }
+
+  .score-bar {
+    height: 6px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .score-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .criteria-grid {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: none;
+    padding: 0 28px 4px;
+  }
+
+  .criteria-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+    cursor: help;
+  }
+
+  .criteria-row:last-child { border-bottom: none; }
+  .criteria-name { font-size: 0.88rem; color: var(--text-muted); }
+
+  .criteria-dots { display: flex; gap: 5px; }
+
+  .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--border);
+  }
+
+  .dot.filled-safe { background: var(--accent); }
+  .dot.filled-warn { background: var(--warn); }
+  .dot.filled-danger { background: var(--danger); }
+
+  .reasons-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: none;
+    padding: 20px 28px;
+  }
+
+  .reasons-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+  }
+
+  .reason-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 8px;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: var(--text-muted);
+  }
+
+  .reason-icon { flex-shrink: 0; margin-top: 1px; }
+
+  .rec-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 16px 16px;
+    padding: 20px 28px;
+  }
+
+  .rec-text {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--text-muted);
+    font-style: italic;
+  }
+
+  .error-box {
+    display: none;
+    background: var(--danger-dim);
+    border: 1px solid var(--danger);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-top: 16px;
+    font-size: 0.88rem;
+    color: var(--danger);
+  }
+
+  .error-box.active { display: block; }
+
+  /* Tooltip */
+  .tooltip-popup {
+    position: fixed;
+    background: #1e2530;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    max-width: 260px;
+    pointer-events: none;
+    z-index: 100;
+    opacity: 0;
+    transition: opacity 0.15s;
+    line-height: 1.5;
+  }
+
+  .tooltip-popup.visible { opacity: 1; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  footer {
+    text-align: center;
+    margin-top: 48px;
+    color: var(--text-dim);
+    font-size: 0.78rem;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="logo">
+      <div class="logo-icon">🛡️</div>
+      <h1>KidCheck</h1>
+    </div>
+    <p class="tagline">Analyzátor vhodnosti her pro děti – poháněný AI</p>
+  </header>
+
+  <div class="form-card">
+    <div class="section-label">Zadej hru k analýze</div>
+
+    <div class="input-group">
+      <label>Odkaz na Google Play</label>
+      <input type="text" id="urlInput" placeholder="https://play.google.com/store/apps/details?id=..." />
+    </div>
+
+    <div class="or-divider">nebo</div>
+
+    <div class="input-group">
+      <label>Screenshot hry / ikona s názvem</label>
+      <div class="upload-area" id="uploadArea">
+        <input type="file" id="fileInput" accept="image/*" />
+        <div class="upload-icon">📸</div>
+        <div class="upload-text">
+          <strong>Klikni pro výběr</strong> nebo přetáhni obrázek sem
+        </div>
+        <img id="previewImg" class="preview-img" style="display:none" />
+      </div>
+    </div>
+
+    <div class="input-group row">
+      <div>
+        <label>Název hry (volitelné – pomůže AI)</label>
+        <input type="text" id="gameName" placeholder="např. Subway Surfers" />
+      </div>
+      <div>
+        <label>Věk dítěte</label>
+        <input type="number" id="ageInput" min="1" max="17" value="8" />
+      </div>
+    </div>
+
+    <button class="btn-analyze" id="analyzeBtn" onclick="analyze()">
+      🔍 &nbsp;Analyzovat hru
+    </button>
+  </div>
+
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <div class="loading-text">AI analyzuje hru, chvilku počkej...</div>
+  </div>
+
+  <div class="error-box" id="errorBox"></div>
+
+  <div class="result" id="result">
+    <div class="result-header">
+      <div class="game-title" id="resGameName"></div>
+      <div id="resVerdict" class="verdict"></div>
+      <div class="score-bar-wrap">
+        <div class="score-label">
+          <span>Skóre vhodnosti</span>
+          <span class="score-num" id="resScore"></span>
+        </div>
+        <div class="score-bar">
+          <div class="score-fill" id="resScoreFill" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+    <div class="criteria-grid" id="resCriteria"></div>
+    <div class="reasons-block" id="resReasons"></div>
+    <div class="rec-block">
+      <div class="reasons-title">Závěr a doporučení</div>
+      <div class="rec-text" id="resRec"></div>
+    </div>
+  </div>
+
+  <footer>
+    KidCheck · Poháněno Claude AI · Hodnocení AI není náhradou rodičovského úsudku
+  </footer>
+</div>
+
+<!-- Tooltip -->
+<div class="tooltip-popup" id="tooltip"></div>
+
+<script>
+// Upload
+const uploadArea = document.getElementById('uploadArea');
+const fileInput = document.getElementById('fileInput');
+const previewImg = document.getElementById('previewImg');
+let uploadedImageBase64 = null;
+
+uploadArea.addEventListener('click', () => fileInput.click());
+uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('dragover'); });
+uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
+uploadArea.addEventListener('drop', e => {
+  e.preventDefault();
+  uploadArea.classList.remove('dragover');
+  if (e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change', () => { if (fileInput.files[0]) loadFile(fileInput.files[0]); });
+
+function loadFile(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    uploadedImageBase64 = e.target.result.split(',')[1];
+    previewImg.src = e.target.result;
+    previewImg.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+// Tooltip
+const tooltip = document.getElementById('tooltip');
+document.addEventListener('mousemove', e => {
+  tooltip.style.left = (e.clientX + 14) + 'px';
+  tooltip.style.top = (e.clientY - 10) + 'px';
+});
+
+// Analyze
+async function analyze() {
+  const url = document.getElementById('urlInput').value.trim();
+  const gameName = document.getElementById('gameName').value.trim();
+  const age = document.getElementById('ageInput').value || '8';
+
+  if (!url && !uploadedImageBase64 && !gameName) {
+    return showError('Zadej odkaz na hru, nahraj screenshot, nebo napiš název hry.');
+  }
+
+  setLoading(true);
+  hideError();
+  hideResult();
+
+  try {
+    const body = { url, gameName, age };
+    if (uploadedImageBase64) body.imageBase64 = uploadedImageBase64;
+
+    const response = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) throw new Error(data.error || 'Chyba serveru');
+
+    showResult(data, age);
+
+  } catch (e) {
+    showError('Chyba: ' + e.message);
+  } finally {
+    setLoading(false);
+  }
+}
+
+function setLoading(on) {
+  document.getElementById('loading').classList.toggle('active', on);
+  document.getElementById('analyzeBtn').disabled = on;
+}
+
+function hideError() { document.getElementById('errorBox').classList.remove('active'); }
+function showError(msg) {
+  const b = document.getElementById('errorBox');
+  b.textContent = msg;
+  b.classList.add('active');
+}
+function hideResult() { document.getElementById('result').classList.remove('active'); }
+
+function showResult(data, age) {
+  document.getElementById('result').classList.add('active');
+  document.getElementById('resGameName').textContent = data.nazev || 'Neznámá hra';
+
+  const vd = document.getElementById('resVerdict');
+  const verdicts = {
+    vhodna: { label: '✅ Vhodná pro ' + age + ' let', cls: 'safe' },
+    castecne: { label: '⚠️ Částečně vhodná', cls: 'partial' },
+    nevhodna: { label: '🚫 Nevhodná pro ' + age + ' let', cls: 'unsafe' }
+  };
+  const v = verdicts[data.celkove_hodnoceni] || verdicts.castecne;
+  vd.textContent = v.label;
+  vd.className = 'verdict ' + v.cls;
+
+  const score = Math.max(0, Math.min(100, data.skore || 50));
+  document.getElementById('resScore').textContent = score + ' / 100';
+  const fill = document.getElementById('resScoreFill');
+  setTimeout(() => {
+    fill.style.width = score + '%';
+    fill.style.background = score >= 70 ? 'var(--accent)' : score >= 40 ? 'var(--warn)' : 'var(--danger)';
+  }, 100);
+
+  const criteriaLabels = {
+    nasili: 'Násilí a horor',
+    nevhodny_obsah: 'Nevhodný obsah',
+    monetizace: 'Agresivní monetizace',
+    cizi_lide: 'Kontakt s cizími',
+    adiktivnost: 'Addiktivní mechaniky',
+    reklamy: 'Reklamy ve hře'
+  };
+
+  const criteriaEl = document.getElementById('resCriteria');
+  criteriaEl.innerHTML = '<div class="reasons-title" style="padding-top:20px">Hodnocení kritérií <span style="font-weight:300;letter-spacing:0;text-transform:none;font-family:DM Sans">(najeď myší pro detail)</span></div>';
+
+  if (data.kriteria) {
+    for (const [key, val] of Object.entries(data.kriteria)) {
+      const label = criteriaLabels[key] || key;
+      const s = val.skore || 1;
+      const dotClass = s <= 2 ? 'filled-safe' : s <= 3 ? 'filled-warn' : 'filled-danger';
+      const dots = Array.from({length: 5}, (_, i) =>
+        `<div class="dot ${i < s ? dotClass : ''}"></div>`
+      ).join('');
+
+      const row = document.createElement('div');
+      row.className = 'criteria-row';
+      row.innerHTML = `<span class="criteria-name">${label}</span><div class="criteria-dots">${dots}</div>`;
+
+      if (val.komentar) {
+        row.addEventListener('mouseenter', () => {
+          tooltip.textContent = val.komentar;
+          tooltip.classList.add('visible');
+        });
+        row.addEventListener('mouseleave', () => tooltip.classList.remove('visible'));
+      }
+
+      criteriaEl.appendChild(row);
+    }
+  }
+
+  const reasonsEl = document.getElementById('resReasons');
+  reasonsEl.innerHTML = '<div class="reasons-title">Zjištěné skutečnosti</div>';
+  (data.duvody || []).forEach(r => {
+    reasonsEl.innerHTML += `<div class="reason-item"><span class="reason-icon">→</span><span>${r}</span></div>`;
+  });
+
+  document.getElementById('resRec').textContent = data.doporuceni || '';
+
+  document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+</script>
+</body>
+</html>
