@@ -1,14 +1,26 @@
+import Redis from 'ioredis';
+
 export const config = { maxDuration: 30 };
 
-// Vercel KV via REST API - no npm package needed
-async function kvIncr(key) {
-  const url = `${process.env.KV_REST_API_URL}/incr/${key}`;
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${process.env.KV_REST_API_TOKEN}` }
-  });
-  const data = await res.json();
-  return data.result;
+let redis = null;
+function getRedis() {
+  if (!redis && process.env.REDIS_URL) {
+    redis = new Redis(process.env.REDIS_URL, {
+      tls: process.env.REDIS_URL.includes('redislabs.com') ? { rejectUnauthorized: false } : undefined,
+      connectTimeout: 5000,
+      lazyConnect: true,
+    });
+  }
+  return redis;
+}
+
+async function incrementCounter() {
+  try {
+    const client = getRedis();
+    if (!client) return;
+    await client.connect().catch(() => {}); // already connected = ignore error
+    await client.incr('total_analyses');
+  } catch (e) { /* non-critical */ }
 }
 
 export default async function handler(req, res) {
@@ -26,7 +38,7 @@ export default async function handler(req, res) {
   }
 
   // Increment counter
-  try { await kvIncr('total_analyses'); } catch (e) { /* non-critical */ }
+  try { await incrementCounter(); } catch (e) { /* non-critical */ }
 
   const content = [];
 
