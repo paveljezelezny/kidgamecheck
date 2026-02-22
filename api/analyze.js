@@ -1,6 +1,15 @@
-import { kv } from '@vercel/kv';
-
 export const config = { maxDuration: 30 };
+
+// Vercel KV via REST API - no npm package needed
+async function kvIncr(key) {
+  const url = `${process.env.KV_REST_API_URL}/incr/${key}`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${process.env.KV_REST_API_TOKEN}` }
+  });
+  const data = await res.json();
+  return data.result;
+}
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -16,8 +25,8 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Chybí vstupní data.' });
   }
 
-  // Increment counter in KV
-  try { await kv.incr('total_analyses'); } catch (e) { /* non-critical, continue */ }
+  // Increment counter
+  try { await kvIncr('total_analyses'); } catch (e) { /* non-critical */ }
 
   const content = [];
 
