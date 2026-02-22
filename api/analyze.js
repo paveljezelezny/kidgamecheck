@@ -1,3 +1,5 @@
+export const config = { maxDuration: 30 };
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -36,7 +38,7 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: 'claude-opus-4-6',
-        max_tokens: 2500,
+        max_tokens: 3000,
         messages: [{ role: 'user', content }]
       })
     });
@@ -50,30 +52,14 @@ export default async function handler(req, res) {
     const raw = data.content.map(b => b.text || '').join('');
 
     const jsonMatch = raw.match(/```json\s*([\s\S]*?)\s*```/) || raw.match(/(\{[\s\S]*\})/);
-    if (!jsonMatch) throw new Error('AI nevrátila validní odpověď.');
+    if (!jsonMatch) throw new Error('AI nevrátila validní odpověď. Zkus to prosím znovu.');
 
-    const parsed = JSON.parse(jsonMatch[1]);
-
-    // Fetch real app icons from Google Play for recommended games
-    if (parsed.doporucene && Array.isArray(parsed.doporucene)) {
-      await Promise.all(parsed.doporucene.map(async (game) => {
-        if (game.package_id) {
-          try {
-            const playRes = await fetch(
-              `https://play.google.com/store/apps/details?id=${game.package_id}&hl=cs`,
-              { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' } }
-            );
-            const html = await playRes.text();
-            // Extract og:image which is the app icon
-            const iconMatch = html.match(/<meta[^>]+property="og:image"[^>]+content="([^"]+)"/);
-            if (iconMatch) game.icon_url = iconMatch[1];
-          } catch (e) {
-            // silently fail, frontend will show emoji fallback
-          }
-        }
-      }));
+    let parsed;
+    try {
+      parsed = JSON.parse(jsonMatch[1]);
+    } catch (e) {
+      throw new Error('Chyba při zpracování odpovědi AI. Zkus to prosím znovu.');
     }
-
     return res.status(200).json(parsed);
 
   } catch (e) {
@@ -152,5 +138,4 @@ RULES for "doporucene":
 Criteria scores: 1=no issues, 2=mild, 3=moderate, 4=significant, 5=severe
 Suitability score: 0-100 (100=ideal for child, 0=completely unsuitable)
 celkove_hodnoceni: "vhodna" for 70+, "castecne" for 40-69, "nevhodna" for less`;
-}
 }
