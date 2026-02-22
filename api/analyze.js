@@ -1,3 +1,5 @@
+import { kv } from '@vercel/kv';
+
 export const config = { maxDuration: 30 };
 
 export default async function handler(req, res) {
@@ -13,6 +15,9 @@ export default async function handler(req, res) {
   if (!url && !gameName && !imageBase64) {
     return res.status(400).json({ error: 'Chybí vstupní data.' });
   }
+
+  // Increment counter in KV
+  try { await kv.incr('total_analyses'); } catch (e) { /* non-critical, continue */ }
 
   const content = [];
 
