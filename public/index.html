@@ -53,8 +53,33 @@
     padding: 60px 24px 80px;
   }
 
+  /* Lang switcher */
+  .lang-switcher {
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+    margin-bottom: 32px;
+  }
+
+  .lang-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 5px 12px;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .lang-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .lang-btn.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+
   header {
-    margin-bottom: 56px;
+    margin-bottom: 40px;
     animation: fadeUp 0.6s ease both;
   }
 
@@ -160,7 +185,6 @@
 
   .upload-area input { display: none; }
   .upload-icon { font-size: 28px; margin-bottom: 8px; }
-
   .upload-text { font-size: 0.85rem; color: var(--text-muted); }
   .upload-text strong { color: var(--accent); font-weight: 500; }
 
@@ -323,7 +347,6 @@
 
   .criteria-row:last-child { border-bottom: none; }
   .criteria-name { font-size: 0.88rem; color: var(--text-muted); }
-
   .criteria-dots { display: flex; gap: 5px; }
 
   .dot {
@@ -394,26 +417,7 @@
 
   .error-box.active { display: block; }
 
-  /* Tooltip */
-  .tooltip-popup {
-    position: fixed;
-    background: #1e2530;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 10px 14px;
-    font-size: 0.8rem;
-    color: var(--text-muted);
-    max-width: 260px;
-    pointer-events: none;
-    z-index: 100;
-    opacity: 0;
-    transition: opacity 0.15s;
-    line-height: 1.5;
-  }
-
-  .tooltip-popup.visible { opacity: 1; }
-
-  /* Recommendations */
+  /* Recommended games */
   .rec-games-section {
     margin-top: 24px;
     animation: fadeUp 0.5s 0.2s ease both;
@@ -445,7 +449,6 @@
     border: 1px solid var(--border);
     border-radius: 14px;
     padding: 16px;
-    text-decoration: none;
     display: block;
     transition: all 0.2s;
     position: relative;
@@ -469,7 +472,6 @@
     width: 48px;
     height: 48px;
     border-radius: 12px;
-    object-fit: cover;
     background: var(--border);
     flex-shrink: 0;
     display: flex;
@@ -477,13 +479,6 @@
     justify-content: center;
     font-size: 22px;
     overflow: hidden;
-  }
-
-  .rec-game-icon img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 12px;
   }
 
   .rec-game-info { flex: 1; min-width: 0; }
@@ -530,15 +525,8 @@
     color: #fbbf24;
   }
 
-  .rec-game-stars span {
-    color: var(--text-muted);
-    font-size: 0.72rem;
-  }
-
-  .rec-game-downloads {
-    font-size: 0.72rem;
-    color: var(--text-dim);
-  }
+  .rec-game-stars span { color: var(--text-muted); font-size: 0.72rem; }
+  .rec-game-downloads { font-size: 0.72rem; color: var(--text-dim); }
 
   .rec-game-score {
     position: absolute;
@@ -575,16 +563,83 @@
 
   .store-badge:hover { border-color: var(--accent); color: var(--accent); }
 
+  /* Usage counter */
+  .counter-section {
+    margin-top: 48px;
+    text-align: center;
+    animation: fadeUp 0.6s 0.3s ease both;
+  }
+
+  .counter-box {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px 40px;
+  }
+
+  .counter-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  .counter-number {
+    font-family: 'Syne', sans-serif;
+    font-size: 2.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    transition: all 0.3s;
+  }
+
+  .counter-sublabel {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+  }
+
+  /* Tooltip */
+  .tooltip-popup {
+    position: fixed;
+    background: #1e2530;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    max-width: 260px;
+    pointer-events: none;
+    z-index: 100;
+    opacity: 0;
+    transition: opacity 0.15s;
+    line-height: 1.5;
+  }
+
+  .tooltip-popup.visible { opacity: 1; }
+
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(16px); }
     to { opacity: 1; transform: translateY(0); }
   }
 
   @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes countUp {
+    from { transform: scale(1.3); color: #86efac; }
+    to { transform: scale(1); }
+  }
+
+  .counter-pop { animation: countUp 0.4s ease both; }
 
   footer {
     text-align: center;
-    margin-top: 48px;
+    margin-top: 32px;
     color: var(--text-dim);
     font-size: 0.78rem;
   }
@@ -593,32 +648,38 @@
 <body>
 <div class="container">
 
+  <!-- Language switcher -->
+  <div class="lang-switcher">
+    <button class="lang-btn active" id="btnCs" onclick="setLang('cs')">🇨🇿 CZ</button>
+    <button class="lang-btn" id="btnEn" onclick="setLang('en')">🇬🇧 EN</button>
+  </div>
+
   <header>
     <div class="logo">
       <div class="logo-icon">🛡️</div>
       <h1>Kid Game Checker</h1>
     </div>
-    <p class="tagline">AInalyzátor vhodnosti her pro děti – <a href="https://pracovna.cz" target="_blank" style="color:var(--accent);text-decoration:none;">Pavel Železný | Pracovna.cz</a></p>
+    <p class="tagline" id="tagline">AInalyzátor vhodnosti her pro děti – <a href="https://pracovna.cz" target="_blank" style="color:var(--accent);text-decoration:none;">Pavel Železný | Pracovna.cz</a></p>
   </header>
 
   <div class="form-card">
-    <div class="section-label">Zadej hru k analýze</div>
+    <div class="section-label" id="labelFormTitle">Zadej hru k analýze</div>
 
     <div class="input-group">
-      <label>Odkaz na Google Play nebo Apple App Store</label>
-      <input type="text" id="urlInput" placeholder="https://play.google.com/... nebo https://apps.apple.com/..." />
+      <label id="labelUrl">Odkaz na Google Play nebo Apple App Store</label>
+      <input type="text" id="urlInput" />
     </div>
 
-    <div class="or-divider">nebo</div>
+    <div class="or-divider" id="orDivider">nebo</div>
 
     <div class="input-group">
-      <label>Screenshot hry, ikona nebo obrázek s názvem (JPG, PNG)</label>
+      <label id="labelUpload">Screenshot hry, ikona nebo obrázek s názvem (JPG, PNG)</label>
       <div class="upload-area" id="uploadArea">
         <input type="file" id="fileInput" accept="image/jpeg,image/jpg,image/png,image/webp" />
         <div class="upload-icon">📸</div>
-        <div class="upload-text">
-          <strong>Klikni pro výběr</strong> nebo přetáhni obrázek sem<br>
-          <span style="font-size:0.75rem;color:var(--text-dim)">JPG, JPEG, PNG · screenshot z telefonu nebo webu</span>
+        <div class="upload-text" id="uploadText">
+          <strong id="uploadStrong">Klikni pro výběr</strong> <span id="uploadOr">nebo přetáhni obrázek sem</span><br>
+          <span style="font-size:0.75rem;color:var(--text-dim)" id="uploadHint">JPG, JPEG, PNG · screenshot z telefonu nebo webu</span>
         </div>
         <img id="previewImg" class="preview-img" style="display:none" />
       </div>
@@ -626,23 +687,23 @@
 
     <div class="input-group row">
       <div>
-        <label>Název hry (volitelné – pomůže AI)</label>
-        <input type="text" id="gameName" placeholder="např. Subway Surfers" />
+        <label id="labelGameName">Název hry (volitelné – pomůže AI)</label>
+        <input type="text" id="gameName" />
       </div>
       <div>
-        <label>Věk dítěte</label>
+        <label id="labelAge">Věk dítěte</label>
         <input type="number" id="ageInput" min="1" max="17" value="8" />
       </div>
     </div>
 
     <button class="btn-analyze" id="analyzeBtn" onclick="analyze()">
-      🔍 &nbsp;Analyzovat hru
+      🔍 &nbsp;<span id="btnAnalyzeText">Analyzovat hru</span>
     </button>
   </div>
 
   <div class="loading" id="loading">
     <div class="spinner"></div>
-    <div class="loading-text">AI analyzuje hru, chvilku počkej...</div>
+    <div class="loading-text" id="loadingText">AI analyzuje hru, chvilku počkej...</div>
   </div>
 
   <div class="error-box" id="errorBox"></div>
@@ -653,7 +714,7 @@
       <div id="resVerdict" class="verdict"></div>
       <div class="score-bar-wrap">
         <div class="score-label">
-          <span>Skóre vhodnosti</span>
+          <span id="labelScore">Skóre vhodnosti</span>
           <span class="score-num" id="resScore"></span>
         </div>
         <div class="score-bar">
@@ -664,28 +725,201 @@
     <div class="criteria-grid" id="resCriteria"></div>
     <div class="reasons-block" id="resReasons"></div>
     <div class="rec-block">
-      <div class="reasons-title">Závěr a doporučení</div>
+      <div class="reasons-title" id="labelConclusion">Závěr a doporučení</div>
       <div class="rec-text" id="resRec"></div>
     </div>
   </div>
 
   <!-- Recommended games -->
   <div class="rec-games-section" id="recGamesSection" style="display:none">
-    <div class="rec-games-title">✅ Podobné hry vhodné pro děti (skóre 80+)</div>
+    <div class="rec-games-title" id="recGamesTitle">✅ Podobné hry vhodné pro děti (skóre 70+)</div>
     <div class="rec-games-grid" id="recGamesGrid"></div>
   </div>
 
+  <!-- Usage counter -->
+  <div class="counter-section">
+    <div class="counter-box">
+      <div class="counter-label" id="counterLabel">Celkový počet analýz</div>
+      <div class="counter-number" id="counterNumber">–</div>
+      <div class="counter-sublabel" id="counterSublabel">her bylo dosud analyzováno</div>
+    </div>
+  </div>
+
   <footer>
-    Kid Game Checker · Poháněno Claude AI · Hodnocení AI není náhradou rodičovského úsudku<br>
+    Kid Game Checker · <span id="footerPowered">Poháněno Claude AI</span> · <span id="footerDisclaimer">Hodnocení AI není náhradou rodičovského úsudku</span><br>
     <a href="https://pracovna.cz" target="_blank" style="color:var(--text-dim);text-decoration:none;">Pavel Železný | Pracovna.cz</a>
   </footer>
 </div>
 
-<!-- Tooltip -->
 <div class="tooltip-popup" id="tooltip"></div>
 
 <script>
-// Upload
+// ── Translations ─────────────────────────────────────────────
+const T = {
+  cs: {
+    tagline: 'AInalyzátor vhodnosti her pro děti – <a href="https://pracovna.cz" target="_blank" style="color:var(--accent);text-decoration:none;">Pavel Železný | Pracovna.cz</a>',
+    labelFormTitle: 'Zadej hru k analýze',
+    labelUrl: 'Odkaz na Google Play nebo Apple App Store',
+    urlPlaceholder: 'https://play.google.com/... nebo https://apps.apple.com/...',
+    labelUpload: 'Screenshot hry, ikona nebo obrázek s názvem (JPG, PNG)',
+    uploadStrong: 'Klikni pro výběr',
+    uploadOr: 'nebo přetáhni obrázek sem',
+    uploadHint: 'JPG, JPEG, PNG · screenshot z telefonu nebo webu',
+    orDivider: 'nebo',
+    labelGameName: 'Název hry (volitelné – pomůže AI)',
+    gameNamePlaceholder: 'např. Subway Surfers',
+    labelAge: 'Věk dítěte',
+    btnAnalyze: 'Analyzovat hru',
+    loadingText: 'AI analyzuje hru, chvilku počkej...',
+    errorEmpty: 'Zadej odkaz na hru, nahraj screenshot, nebo napiš název hry.',
+    errorServer: 'Chyba serveru',
+    labelScore: 'Skóre vhodnosti',
+    labelConclusion: 'Závěr a doporučení',
+    recGamesTitle: '✅ Podobné hry vhodné pro děti (skóre 70+)',
+    counterLabel: 'Celkový počet analýz',
+    counterSublabel: 'her bylo dosud analyzováno',
+    footerPowered: 'Poháněno Claude AI',
+    footerDisclaimer: 'Hodnocení AI není náhradou rodičovského úsudku',
+    verdicts: {
+      vhodna: (age) => `✅ Vhodná pro ${age} let`,
+      castecne: () => '⚠️ Částečně vhodná',
+      nevhodna: (age) => `🚫 Nevhodná pro ${age} let`,
+    },
+    criteriaLabels: {
+      nasili: 'Násilí a horor',
+      nevhodny_obsah: 'Nevhodný obsah',
+      monetizace: 'Agresivní monetizace',
+      cizi_lide: 'Kontakt s cizími',
+      adiktivnost: 'Addiktivní mechaniky',
+      reklamy: 'Reklamy ve hře',
+    },
+    criteriaHeader: 'Hodnocení kritérií',
+    criteriaHint: '(najeď myší pro detail)',
+    factsTitle: 'Zjištěné skutečnosti',
+    googlePlay: '▶ Google Play',
+    appStore: ' App Store',
+    unknownGame: 'Neznámá hra',
+    errorPrefix: 'Chyba: ',
+  },
+  en: {
+    tagline: 'AI Analyzer for children\'s game suitability – <a href="https://pracovna.cz" target="_blank" style="color:var(--accent);text-decoration:none;">Pavel Železný | Pracovna.cz</a>',
+    labelFormTitle: 'Enter a game to analyze',
+    labelUrl: 'Link to Google Play or Apple App Store',
+    urlPlaceholder: 'https://play.google.com/... or https://apps.apple.com/...',
+    labelUpload: 'Game screenshot, icon or image with title (JPG, PNG)',
+    uploadStrong: 'Click to choose',
+    uploadOr: 'or drag & drop image here',
+    uploadHint: 'JPG, JPEG, PNG · screenshot from phone or web',
+    orDivider: 'or',
+    labelGameName: 'Game name (optional – helps AI)',
+    gameNamePlaceholder: 'e.g. Subway Surfers',
+    labelAge: 'Child\'s age',
+    btnAnalyze: 'Analyze game',
+    loadingText: 'AI is analyzing the game, please wait...',
+    errorEmpty: 'Enter a game link, upload a screenshot, or type the game name.',
+    errorServer: 'Server error',
+    labelScore: 'Suitability score',
+    labelConclusion: 'Conclusion & recommendation',
+    recGamesTitle: '✅ Similar games suitable for children (score 70+)',
+    counterLabel: 'Total analyses',
+    counterSublabel: 'games analyzed so far',
+    footerPowered: 'Powered by Claude AI',
+    footerDisclaimer: 'AI rating is not a substitute for parental judgment',
+    verdicts: {
+      vhodna: (age) => `✅ Suitable for age ${age}`,
+      castecne: () => '⚠️ Partially suitable',
+      nevhodna: (age) => `🚫 Not suitable for age ${age}`,
+    },
+    criteriaLabels: {
+      nasili: 'Violence & horror',
+      nevhodny_obsah: 'Inappropriate content',
+      monetizace: 'Aggressive monetization',
+      cizi_lide: 'Contact with strangers',
+      adiktivnost: 'Addictive mechanics',
+      reklamy: 'In-game ads',
+    },
+    criteriaHeader: 'Criteria rating',
+    criteriaHint: '(hover for details)',
+    factsTitle: 'Findings',
+    googlePlay: '▶ Google Play',
+    appStore: ' App Store',
+    unknownGame: 'Unknown game',
+    errorPrefix: 'Error: ',
+  }
+};
+
+let lang = localStorage.getItem('kgc_lang') || 'cs';
+
+function setLang(l) {
+  lang = l;
+  localStorage.setItem('kgc_lang', l);
+  document.getElementById('btnCs').classList.toggle('active', l === 'cs');
+  document.getElementById('btnEn').classList.toggle('active', l === 'en');
+  applyTranslations();
+}
+
+function t(key) { return T[lang][key] || T['cs'][key] || key; }
+
+function applyTranslations() {
+  const tx = T[lang];
+  document.getElementById('tagline').innerHTML = tx.tagline;
+  document.getElementById('labelFormTitle').textContent = tx.labelFormTitle;
+  document.getElementById('labelUrl').textContent = tx.labelUrl;
+  document.getElementById('urlInput').placeholder = tx.urlPlaceholder;
+  document.getElementById('labelUpload').textContent = tx.labelUpload;
+  document.getElementById('uploadStrong').textContent = tx.uploadStrong;
+  document.getElementById('uploadOr').textContent = tx.uploadOr;
+  document.getElementById('uploadHint').textContent = tx.uploadHint;
+  document.getElementById('orDivider').textContent = tx.orDivider;
+  document.getElementById('labelGameName').textContent = tx.labelGameName;
+  document.getElementById('gameName').placeholder = tx.gameNamePlaceholder;
+  document.getElementById('labelAge').textContent = tx.labelAge;
+  document.getElementById('btnAnalyzeText').textContent = tx.btnAnalyze;
+  document.getElementById('loadingText').textContent = tx.loadingText;
+  document.getElementById('labelScore').textContent = tx.labelScore;
+  document.getElementById('labelConclusion').textContent = tx.labelConclusion;
+  document.getElementById('recGamesTitle').textContent = tx.recGamesTitle;
+  document.getElementById('counterLabel').textContent = tx.counterLabel;
+  document.getElementById('counterSublabel').textContent = tx.counterSublabel;
+  document.getElementById('footerPowered').textContent = tx.footerPowered;
+  document.getElementById('footerDisclaimer').textContent = tx.footerDisclaimer;
+}
+
+// ── Counter ──────────────────────────────────────────────────
+const COUNTER_KEY = 'kgc_total_analyses';
+
+async function loadCounter() {
+  try {
+    const result = await window.storage.get(COUNTER_KEY, true);
+    const count = result ? parseInt(result.value) || 0 : 0;
+    document.getElementById('counterNumber').textContent = count.toLocaleString();
+  } catch {
+    document.getElementById('counterNumber').textContent = '0';
+  }
+}
+
+async function incrementCounter() {
+  try {
+    let count = 0;
+    try {
+      const result = await window.storage.get(COUNTER_KEY, true);
+      count = result ? parseInt(result.value) || 0 : 0;
+    } catch { count = 0; }
+
+    count++;
+    await window.storage.set(COUNTER_KEY, String(count), true);
+
+    const el = document.getElementById('counterNumber');
+    el.textContent = count.toLocaleString();
+    el.classList.remove('counter-pop');
+    void el.offsetWidth; // reflow
+    el.classList.add('counter-pop');
+  } catch (e) {
+    console.warn('Counter error:', e);
+  }
+}
+
+// ── Upload handling ──────────────────────────────────────────
 const uploadArea = document.getElementById('uploadArea');
 const fileInput = document.getElementById('fileInput');
 const previewImg = document.getElementById('previewImg');
@@ -713,29 +947,32 @@ function loadFile(file) {
   reader.readAsDataURL(file);
 }
 
-// Tooltip
+// ── Tooltip ──────────────────────────────────────────────────
 const tooltip = document.getElementById('tooltip');
 document.addEventListener('mousemove', e => {
   tooltip.style.left = (e.clientX + 14) + 'px';
   tooltip.style.top = (e.clientY - 10) + 'px';
 });
 
-// Analyze
+// ── Analyze ──────────────────────────────────────────────────
 async function analyze() {
   const url = document.getElementById('urlInput').value.trim();
   const gameName = document.getElementById('gameName').value.trim();
   const age = document.getElementById('ageInput').value || '8';
 
   if (!url && !uploadedImageBase64 && !gameName) {
-    return showError('Zadej odkaz na hru, nahraj screenshot, nebo napiš název hry.');
+    return showError(t('errorEmpty'));
   }
 
   setLoading(true);
   hideError();
   hideResult();
 
+  // Increment counter immediately on button press
+  await incrementCounter();
+
   try {
-    const body = { url, gameName, age };
+    const body = { url, gameName, age, lang };
     if (uploadedImageBase64) {
       body.imageBase64 = uploadedImageBase64;
       body.imageMimeType = uploadedImageMimeType;
@@ -748,13 +985,11 @@ async function analyze() {
     });
 
     const data = await response.json();
-
-    if (!response.ok) throw new Error(data.error || 'Chyba serveru');
-
+    if (!response.ok) throw new Error(data.error || t('errorServer'));
     showResult(data, age);
 
   } catch (e) {
-    showError('Chyba: ' + e.message);
+    showError(t('errorPrefix') + e.message);
   } finally {
     setLoading(false);
   }
@@ -774,19 +1009,22 @@ function showError(msg) {
 function hideResult() { document.getElementById('result').classList.remove('active'); }
 
 function showResult(data, age) {
+  const tx = T[lang];
   document.getElementById('result').classList.add('active');
-  document.getElementById('resGameName').textContent = data.nazev || 'Neznámá hra';
+  document.getElementById('resGameName').textContent = data.nazev || tx.unknownGame;
 
+  // Verdict
   const vd = document.getElementById('resVerdict');
-  const verdicts = {
-    vhodna: { label: '✅ Vhodná pro ' + age + ' let', cls: 'safe' },
-    castecne: { label: '⚠️ Částečně vhodná', cls: 'partial' },
-    nevhodna: { label: '🚫 Nevhodná pro ' + age + ' let', cls: 'unsafe' }
+  const vMap = {
+    vhodna: { label: tx.verdicts.vhodna(age), cls: 'safe' },
+    castecne: { label: tx.verdicts.castecne(age), cls: 'partial' },
+    nevhodna: { label: tx.verdicts.nevhodna(age), cls: 'unsafe' },
   };
-  const v = verdicts[data.celkove_hodnoceni] || verdicts.castecne;
+  const v = vMap[data.celkove_hodnoceni] || vMap.castecne;
   vd.textContent = v.label;
   vd.className = 'verdict ' + v.cls;
 
+  // Score bar
   const score = Math.max(0, Math.min(100, data.skore || 50));
   document.getElementById('resScore').textContent = score + ' / 100';
   const fill = document.getElementById('resScoreFill');
@@ -795,21 +1033,13 @@ function showResult(data, age) {
     fill.style.background = score >= 70 ? 'var(--accent)' : score >= 40 ? 'var(--warn)' : 'var(--danger)';
   }, 100);
 
-  const criteriaLabels = {
-    nasili: 'Násilí a horor',
-    nevhodny_obsah: 'Nevhodný obsah',
-    monetizace: 'Agresivní monetizace',
-    cizi_lide: 'Kontakt s cizími',
-    adiktivnost: 'Addiktivní mechaniky',
-    reklamy: 'Reklamy ve hře'
-  };
-
+  // Criteria
   const criteriaEl = document.getElementById('resCriteria');
-  criteriaEl.innerHTML = '<div class="reasons-title" style="padding-top:20px">Hodnocení kritérií <span style="font-weight:300;letter-spacing:0;text-transform:none;font-family:DM Sans">(najeď myší pro detail)</span></div>';
+  criteriaEl.innerHTML = `<div class="reasons-title" style="padding-top:20px">${tx.criteriaHeader} <span style="font-weight:300;letter-spacing:0;text-transform:none;font-family:'DM Sans'">${tx.criteriaHint}</span></div>`;
 
   if (data.kriteria) {
     for (const [key, val] of Object.entries(data.kriteria)) {
-      const label = criteriaLabels[key] || key;
+      const label = tx.criteriaLabels[key] || key;
       const s = val.skore || 1;
       const dotClass = s <= 2 ? 'filled-safe' : s <= 3 ? 'filled-warn' : 'filled-danger';
       const dots = Array.from({length: 5}, (_, i) =>
@@ -821,19 +1051,16 @@ function showResult(data, age) {
       row.innerHTML = `<span class="criteria-name">${label}</span><div class="criteria-dots">${dots}</div>`;
 
       if (val.komentar) {
-        row.addEventListener('mouseenter', () => {
-          tooltip.textContent = val.komentar;
-          tooltip.classList.add('visible');
-        });
+        row.addEventListener('mouseenter', () => { tooltip.textContent = val.komentar; tooltip.classList.add('visible'); });
         row.addEventListener('mouseleave', () => tooltip.classList.remove('visible'));
       }
-
       criteriaEl.appendChild(row);
     }
   }
 
+  // Findings
   const reasonsEl = document.getElementById('resReasons');
-  reasonsEl.innerHTML = '<div class="reasons-title">Zjištěné skutečnosti</div>';
+  reasonsEl.innerHTML = `<div class="reasons-title">${tx.factsTitle}</div>`;
   (data.duvody || []).forEach(r => {
     reasonsEl.innerHTML += `<div class="reason-item"><span class="reason-icon">→</span><span>${r}</span></div>`;
   });
@@ -847,14 +1074,7 @@ function showResult(data, age) {
 
   if (data.doporucene && data.doporucene.length > 0) {
     recSection.style.display = 'block';
-
     data.doporucene.forEach(game => {
-      // Build Google Play icon URL from package_id
-      const iconUrl = game.package_id
-        ? `https://play-lh.googleusercontent.com/search?q=${encodeURIComponent(game.nazev)}`
-        : null;
-
-      // Stars rendering
       const stars = game.hodnoceni_hvezdy || 0;
       const fullStars = Math.floor(stars);
       const halfStar = stars - fullStars >= 0.5;
@@ -865,21 +1085,12 @@ function showResult(data, age) {
         else starsHtml += '☆';
       }
 
-      // Store links - always use search to guarantee working links
       const gameQuery = encodeURIComponent(game.nazev);
       const gpUrl = `https://play.google.com/store/search?q=${gameQuery}&c=apps`;
       const asUrl = `https://apps.apple.com/cz/search?term=${gameQuery}`;
 
-      const storesHtml = `
-        <a class="store-badge" href="${gpUrl}" target="_blank" rel="noopener">▶ Google Play</a>
-        <a class="store-badge" href="${asUrl}" target="_blank" rel="noopener"> App Store</a>
-      `;
-
-      // Icon - use scraped icon_url from backend, fallback to emoji
       const iconHtml = game.icon_url
-        ? `<img src="${game.icon_url}" 
-             onerror="this.style.display='none';this.parentElement.innerHTML='🎮'" 
-             alt="${game.nazev}" style="width:48px;height:48px;border-radius:12px;object-fit:cover;" />`
+        ? `<img src="${game.icon_url}" onerror="this.style.display='none';this.parentElement.innerHTML='🎮'" alt="${game.nazev}" style="width:48px;height:48px;border-radius:12px;object-fit:cover;" />`
         : '🎮';
 
       const card = document.createElement('div');
@@ -898,7 +1109,10 @@ function showResult(data, age) {
           <div class="rec-game-stars">${starsHtml} <span>${stars.toFixed(1)}</span></div>
           <div class="rec-game-downloads">⬇ ${game.pocet_stazeni || '?'}</div>
         </div>
-        <div class="rec-game-stores">${storesHtml}</div>
+        <div class="rec-game-stores">
+          <a class="store-badge" href="${gpUrl}" target="_blank" rel="noopener">${tx.googlePlay}</a>
+          <a class="store-badge" href="${asUrl}" target="_blank" rel="noopener">${tx.appStore}</a>
+        </div>
       `;
       recGrid.appendChild(card);
     });
@@ -908,6 +1122,10 @@ function showResult(data, age) {
 
   document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
+
+// ── Init ─────────────────────────────────────────────────────
+setLang(lang);
+loadCounter();
 </script>
 </body>
 </html>

@@ -6,7 +6,7 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { url, gameName, age, imageBase64, imageMimeType } = req.body;
+  const { url, gameName, age, imageBase64, imageMimeType, lang } = req.body;
 
   if (!url && !gameName && !imageBase64) {
     return res.status(400).json({ error: 'Chybí vstupní data.' });
@@ -24,7 +24,7 @@ export default async function handler(req, res) {
     });
   }
 
-  content.push({ type: 'text', text: buildPrompt(url, gameName, age) });
+  content.push({ type: 'text', text: buildPrompt(url, gameName, age, lang) });
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -81,68 +81,76 @@ export default async function handler(req, res) {
   }
 }
 
-function buildPrompt(url, gameName, age) {
+function buildPrompt(url, gameName, age, lang) {
+  const isEn = lang === 'en';
   let storeInfo = '';
   if (url) {
     if (url.includes('play.google.com')) storeInfo = `Google Play URL: ${url}`;
     else if (url.includes('apps.apple.com') || url.includes('itunes.apple.com')) storeInfo = `Apple App Store URL: ${url}`;
-    else storeInfo = `URL hry: ${url}`;
+    else storeInfo = `Game URL: ${url}`;
   }
 
-  return `Jsi odborník na dětskou bezpečnost a hodnocení vhodnosti her. Analyzuj hru pro dítě ve věku ${age} let.
+  const langInstruction = isEn
+    ? 'IMPORTANT: Write ALL text fields (nazev, popis, duvody, doporuceni, komentar) in ENGLISH.'
+    : 'DŮLEŽITÉ: Piš všechna textová pole (nazev, popis, duvody, doporuceni, komentar) ČESKY.';
 
-${gameName ? `Název hry: ${gameName}` : ''}
+  return `You are an expert in child safety and game suitability rating. Analyze the game for a child aged ${age}.
+
+${gameName ? `Game name: ${gameName}` : ''}
 ${storeInfo}
-${!gameName && !url ? 'Hru urči z přiloženého screenshotu nebo obrázku.' : ''}
+${!gameName && !url ? 'Identify the game from the attached screenshot or image.' : ''}
 
-Pokud máš přiložený obrázek, použij ho k identifikaci hry.
-Na základě svých znalostí proveď důkladnou analýzu vhodnosti pro dítě věku ${age} let.
+${langInstruction}
 
-Vrať POUZE JSON v tomto přesném formátu (nic jiného):
+If an image is attached, use it to identify the game.
+Based on your knowledge, perform a thorough suitability analysis for a child aged ${age}.
+
+Return ONLY JSON in this exact format (nothing else):
 
 \`\`\`json
 {
-  "nazev": "Název hry",
+  "nazev": "Game name",
   "vek": ${age},
   "celkove_hodnoceni": "vhodna|castecne|nevhodna",
   "skore": 75,
   "kriteria": {
-    "nasili": {"skore": 1, "komentar": "popis"},
-    "nevhodny_obsah": {"skore": 1, "komentar": "popis"},
-    "monetizace": {"skore": 3, "komentar": "popis"},
-    "cizi_lide": {"skore": 1, "komentar": "popis"},
-    "adiktivnost": {"skore": 2, "komentar": "popis"},
-    "reklamy": {"skore": 2, "komentar": "popis"}
+    "nasili": {"skore": 1, "komentar": "description"},
+    "nevhodny_obsah": {"skore": 1, "komentar": "description"},
+    "monetizace": {"skore": 3, "komentar": "description"},
+    "cizi_lide": {"skore": 1, "komentar": "description"},
+    "adiktivnost": {"skore": 2, "komentar": "description"},
+    "reklamy": {"skore": 2, "komentar": "description"}
   },
-  "duvody": ["Důvod 1", "Důvod 2", "Důvod 3"],
-  "doporuceni": "Závěr a doporučení pro rodiče v 2-3 větách.",
+  "duvody": ["Finding 1", "Finding 2", "Finding 3"],
+  "doporuceni": "Conclusion and recommendation for parents in 2-3 sentences.",
   "doporucene": [
     {
-      "nazev": "Název hry 1",
-      "vyvojar": "Název vývojáře",
-      "popis": "Krátký popis v 1 větě proč je vhodná",
+      "nazev": "Game name 1",
+      "vyvojar": "Developer name",
+      "popis": "Short description in 1 sentence why it is suitable",
       "skore_vhodnosti": 92,
       "hodnoceni_hvezdy": 4.6,
       "pocet_stazeni": "50M+",
-      "package_id": "com.skutecne.packageid",
-      "google_play_url": "https://play.google.com/store/apps/details?id=com.skutecne.packageid",
-      "apple_store_url": "https://apps.apple.com/app/id123456789"
+      "package_id": "com.real.packageid",
+      "google_play_url": "https://play.google.com/store/search?q=Game+Name&c=apps",
+      "apple_store_url": "https://apps.apple.com/search?term=Game+Name"
     }
   ]
 }
 \`\`\`
 
-PRAVIDLA pro pole "doporucene" - velmi důležité:
-- Uveď přesně 3 skutečné existující hry podobného žánru jako analyzovaná
-- Každá musí mít skore_vhodnosti minimálně 70 bodů
-- Všechny musí být vhodné pro věk ${age} let
-- package_id MUSÍ být skutečné Android package ID (např. "com.kiloo.subwaysurf" pro Subway Surfers)
-- google_play_url VŽDY sestav jako vyhledávání: https://play.google.com/store/search?q=<nazev_hry_url_encoded>&c=apps
-- apple_store_url VŽDY sestav jako vyhledávání: https://apps.apple.com/cz/search?term=<nazev_hry_url_encoded>
-- hodnoceni_hvezdy = reálné hodnocení na Google Play zaokrouhlené na 1 desetinné místo
-- pocet_stazeni = reálný údaj z Google Play (např. "100M+", "50M+", "10M+", "1M+")
+RULES for "doporucene":
+- List exactly 3 real existing games of similar genre
+- Each must have skore_vhodnosti of at least 70
+- All must be suitable for age ${age}
+- package_id must be a real Android package ID
+- google_play_url: always use search https://play.google.com/store/search?q=<name>&c=apps
+- apple_store_url: always use search https://apps.apple.com/search?term=<name>
+- hodnoceni_hvezdy = real Google Play rating rounded to 1 decimal
+- pocet_stazeni = real Google Play download count (e.g. "100M+", "50M+", "10M+", "1M+")
 
-Skóre kritérií: 1=bez problémů, 2=mírné, 3=střední, 4=výrazné, 5=závažné
-Skóre vhodnosti: 0-100 (100=ideální pro dítě, 0=zcela nevhodná)
-celkove_hodnoceni: "vhodna" pro 70+, "castecne" pro 40-69, "nevhodna" pro méně`;
+Criteria scores: 1=no issues, 2=mild, 3=moderate, 4=significant, 5=severe
+Suitability score: 0-100 (100=ideal for child, 0=completely unsuitable)
+celkove_hodnoceni: "vhodna" for 70+, "castecne" for 40-69, "nevhodna" for less`;
+}
 }
