@@ -4,6 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kid Game Checker – AInalyzátor vhodnosti her pro děti</title>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-PQ99TCS4R6"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-PQ99TCS4R6');
+</script>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -563,48 +571,6 @@
 
   .store-badge:hover { border-color: var(--accent); color: var(--accent); }
 
-  /* Usage counter */
-  .counter-section {
-    margin-top: 48px;
-    text-align: center;
-    animation: fadeUp 0.6s 0.3s ease both;
-  }
-
-  .counter-box {
-    display: inline-flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 20px 40px;
-  }
-
-  .counter-label {
-    font-family: 'Syne', sans-serif;
-    font-size: 0.65rem;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--text-dim);
-  }
-
-  .counter-number {
-    font-family: 'Syne', sans-serif;
-    font-size: 2.8rem;
-    font-weight: 800;
-    color: var(--accent);
-    line-height: 1;
-    letter-spacing: -0.02em;
-    transition: all 0.3s;
-  }
-
-  .counter-sublabel {
-    font-size: 0.75rem;
-    color: var(--text-dim);
-  }
-
   /* Tooltip */
   .tooltip-popup {
     position: fixed;
@@ -734,15 +700,6 @@
   <div class="rec-games-section" id="recGamesSection" style="display:none">
     <div class="rec-games-title" id="recGamesTitle">✅ Podobné hry vhodné pro děti (skóre 70+)</div>
     <div class="rec-games-grid" id="recGamesGrid"></div>
-  </div>
-
-  <!-- Usage counter -->
-  <div class="counter-section">
-    <div class="counter-box">
-      <div class="counter-label" id="counterLabel">Celkový počet analýz</div>
-      <div class="counter-number" id="counterNumber">–</div>
-      <div class="counter-sublabel" id="counterSublabel">her bylo dosud analyzováno</div>
-    </div>
   </div>
 
   <footer>
@@ -879,43 +836,17 @@ function applyTranslations() {
   document.getElementById('labelScore').textContent = tx.labelScore;
   document.getElementById('labelConclusion').textContent = tx.labelConclusion;
   document.getElementById('recGamesTitle').textContent = tx.recGamesTitle;
-  document.getElementById('counterLabel').textContent = tx.counterLabel;
-  document.getElementById('counterSublabel').textContent = tx.counterSublabel;
   document.getElementById('footerPowered').textContent = tx.footerPowered;
   document.getElementById('footerDisclaimer').textContent = tx.footerDisclaimer;
 }
 
-// ── Counter ──────────────────────────────────────────────────
-const COUNTER_KEY = 'kgc_total_analyses';
-
-async function loadCounter() {
-  try {
-    const result = await window.storage.get(COUNTER_KEY, true);
-    const count = result ? parseInt(result.value) || 0 : 0;
-    document.getElementById('counterNumber').textContent = count.toLocaleString();
-  } catch {
-    document.getElementById('counterNumber').textContent = '0';
-  }
-}
-
-async function incrementCounter() {
-  try {
-    let count = 0;
-    try {
-      const result = await window.storage.get(COUNTER_KEY, true);
-      count = result ? parseInt(result.value) || 0 : 0;
-    } catch { count = 0; }
-
-    count++;
-    await window.storage.set(COUNTER_KEY, String(count), true);
-
-    const el = document.getElementById('counterNumber');
-    el.textContent = count.toLocaleString();
-    el.classList.remove('counter-pop');
-    void el.offsetWidth; // reflow
-    el.classList.add('counter-pop');
-  } catch (e) {
-    console.warn('Counter error:', e);
+// ── GA event tracking ────────────────────────────────────────
+function trackAnalysis(gameName, url) {
+  if (typeof gtag !== 'undefined') {
+    gtag('event', 'analyze_game', {
+      event_category: 'engagement',
+      event_label: gameName || url || 'unknown',
+    });
   }
 }
 
@@ -968,8 +899,8 @@ async function analyze() {
   hideError();
   hideResult();
 
-  // Increment counter immediately on button press
-  await incrementCounter();
+  // Track in Google Analytics
+  trackAnalysis(gameName, url);
 
   try {
     const body = { url, gameName, age, lang };
@@ -1125,7 +1056,6 @@ function showResult(data, age) {
 
 // ── Init ─────────────────────────────────────────────────────
 setLang(lang);
-loadCounter();
 </script>
 </body>
 </html>
